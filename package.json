@@ -41,7 +41,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "npx expo export --platform web"
+    "build": "npx expo export --platform web && node -e \"const fs=require('fs'); fs.cpSync('dist', 'build', {recursive: true}); fs.cpSync('dist', 'web-build', {recursive: true});\""
   },
   "private": true
 }
