@@ -153,6 +153,16 @@ function DrawerNavigator() {
       />
 
       <Drawer.Screen
+        name="CaseDetail"
+        component={CaseDetailScreen}
+      />
+
+      <Drawer.Screen
+        name="EvidenceViewer"
+        component={EvidenceViewerScreen}
+      />
+
+      <Drawer.Screen
         name="PersonCrimeTracker"
         component={PersonCrimeTrackerScreen}
       />
