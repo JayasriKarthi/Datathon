@@ -43,5 +43,16 @@
     "web": "expo start --web",
     "build": "npx expo export --platform web && node -e \"const fs=require('fs'); fs.cpSync('dist', 'build', {recursive: true}); fs.cpSync('dist', 'web-build', {recursive: true});\""
   },
-  "private": true
+  "private": true,
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DHANVANTHGS/Datathon.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DHANVANTHGS/Datathon/issues"
+  },
+  "homepage": "https://github.com/DHANVANTHGS/Datathon#readme"
 }
