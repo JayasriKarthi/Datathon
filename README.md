@@ -4,11 +4,7 @@
 
 > **Bharat Builds Tour, Event 01 (WeMakeDevs x AWS)** · Team `6KN2WJ` · Track: **Ship It** (deployed on AWS)
 
-| | |
-|---|---|
-| Demo video (3 min) | **TODO: paste link** |
-| Live app | **TODO: paste link, or run it locally (see [Run it](#run-it))** |
-| Blog post (AWS Builder Center) | **TODO: paste link, or delete this row** |
+
 
 ---
 
