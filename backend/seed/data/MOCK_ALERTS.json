@@ -1,0 +1,46 @@
+[
+  {
+    "id": "alert-1",
+    "type": "pattern",
+    "severity": "red",
+    "title": "Pattern match — chain snatching cluster",
+    "description": "FIR 1142 shares MO and location radius with two open cases in Hoodi.",
+    "time": "2 min ago",
+    "timestamp": "2026-07-08T14:18:00Z",
+    "isRead": false,
+    "linkedCaseId": "KA-CR-1142"
+  },
+  {
+    "id": "alert-2",
+    "type": "patrol",
+    "severity": "amber",
+    "title": "Patrol deviation",
+    "description": "Unit PCR-14 has been off its assigned route for 18 minutes.",
+    "time": "11 min ago",
+    "timestamp": "2026-07-08T14:09:00Z",
+    "isRead": false,
+    "linkedCaseId": null
+  },
+  {
+    "id": "alert-3",
+    "type": "trend",
+    "severity": "amber",
+    "title": "Rising complaint volume — UPI fraud",
+    "description": "9 complaints from Whitefield in 48 hours, up from a weekly average of 3.",
+    "time": "1 hr ago",
+    "timestamp": "2026-07-08T13:20:00Z",
+    "isRead": true,
+    "linkedCaseId": null
+  },
+  {
+    "id": "alert-4",
+    "type": "link",
+    "severity": "green",
+    "title": "Repeat offender identified",
+    "description": "Vehicle KA-05-AB-4471 now linked to a second, unrelated theft complaint.",
+    "time": "2 hr ago",
+    "timestamp": "2026-07-08T12:20:00Z",
+    "isRead": true,
+    "linkedCaseId": "KA-CR-1149"
+  }
+]

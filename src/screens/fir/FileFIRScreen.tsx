@@ -21,7 +21,8 @@ import { useCaseStore } from '../../store/caseStore';
 import { useAuthStore } from '../../store/authStore';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 import type { DrawerParamList } from '../../types/navigation';
-import type { Case, CaseCategory, Priority } from '../../types';
+import type { CaseCategory, Priority } from '../../types';
+import { apiErrorMessage } from '../../api/errors';
 
 type Props = {
   navigation: DrawerNavigationProp<DrawerParamList, 'FileFIR'>;
@@ -40,14 +41,6 @@ const PRIORITIES: { label: string; value: Priority; color: string }[] = [
   { label: 'Review', value: 'review', color: Colors.amber },
   { label: 'Routine', value: 'routine', color: '#22c55e' },
 ];
-
-function generateFIRNumber(): string {
-  const date = new Date();
-  const yy = date.getFullYear().toString().slice(-2);
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const seq = Math.floor(Math.random() * 9000) + 1000;
-  return `KA-CR-${yy}${mm}-${seq}`;
-}
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
@@ -125,7 +118,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, firNumber, onViewC
 // ── Main Screen ─────────────────────────────────────────────────────────────
 export const FileFIRScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { addCase } = useCaseStore();
+  const { createCase } = useCaseStore();
   const { officer } = useAuthStore();
 
   // ── Form state ─────────────────────────────────────────────────────────────
@@ -145,51 +138,34 @@ export const FileFIRScreen: React.FC<Props> = ({ navigation }) => {
   const [registeredFIR, setRegisteredFIR] = useState('');
 
   // ── Validate & Submit ───────────────────────────────────────────────────────
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!complainant.trim()) { alert('Complainant name is required.'); return; }
     if (!title.trim()) { alert('Case title / offence is required.'); return; }
     if (!description.trim()) { alert('Description is required.'); return; }
     if (!location.trim()) { alert('Incident location is required.'); return; }
 
     setSubmitting(true);
-
-    const firNumber = generateFIRNumber();
-    const newCase: Case = {
-      id: `CASE-${Date.now()}`,
-      firNumber,
-      title: title.trim(),
-      priority,
-      filedDate: today(),
-      complainant: complainant.trim(),
-      investigatingOfficer: officer?.name ?? 'Unassigned',
-      description: description.trim(),
-      entities: entities.split(',').map((e) => e.trim()).filter(Boolean),
-      footerNote: `Filed by ${officer?.name ?? 'Officer'} on ${today()}`,
-      category,
-      status: 'open',
-      linkedCases: [],
-      sector: sector.trim() || 'Sector 4',
-      location: location.trim(),
-      evidence: [],
-      timeline: [
-        {
-          id: `evt-${Date.now()}`,
-          date: today(),
-          event: 'FIR Registered',
-          officer: officer?.name ?? 'Duty Officer',
-          note: `FIR ${firNumber} registered. Complainant: ${complainant.trim()}.`,
-          type: 'note',
-        },
-      ],
-    };
-
-    addCase(newCase);
-
-    setTimeout(() => {
+    try {
+      // The server assigns the FIR number and records which officer filed it
+      const created = await createCase({
+        title: title.trim(),
+        description: description.trim(),
+        complainant: complainant.trim(),
+        complainantPhone: complainantPhone.trim() || undefined,
+        category,
+        priority,
+        location: location.trim(),
+        sector: sector.trim(),
+        entities: entities.split(',').map((e) => e.trim()).filter(Boolean),
+        officerName: officer?.name,
+      });
+      setRegisteredFIR(created.firNumber);
+      setShowSuccess(true);
+    } catch (e) {
+      alert(apiErrorMessage(e, 'Could not register the FIR. Please try again.'));
+    } finally {
       setSubmitting(false);
-      setRegisteredFIR(firNumber);
-      setShowSuccess(true);        // ← show our custom modal
-    }, 600);
+    }
   };
 
   const handleViewCases = () => {

@@ -94,6 +94,9 @@ export interface Evidence {
   description: string;
   date: string;
   url?: string;
+  s3Key?: string;
+  contentType?: string;
+  uploadedBy?: string;
 }
 
 // ─── Timeline Entry ───────────────────────────────────────────────────────────
@@ -103,6 +106,8 @@ export interface TimelineEntry {
   time: string;
   event: string;
   officer: string;
+  note?: string;
+  type?: string;
 }
 
 // ─── Case ─────────────────────────────────────────────────────────────────────
@@ -126,6 +131,8 @@ export interface Case {
   longitude?: number;
   evidence: Evidence[];
   timeline: TimelineEntry[];
+  createdAt?: string;
+  complainantPhone?: string;
 }
 
 // ─── Alert ────────────────────────────────────────────────────────────────────

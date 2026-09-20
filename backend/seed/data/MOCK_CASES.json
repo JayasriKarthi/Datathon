@@ -1,0 +1,315 @@
+[
+  {
+    "id": "KA-CR-1142",
+    "firNumber": "FIR KA-CR-1142",
+    "title": "Chain snatching — Hoodi Circle",
+    "priority": "urgent",
+    "filedDate": "07 Jul 2026",
+    "complainant": "Lakshmi N.",
+    "investigatingOfficer": "SI Manjunath",
+    "description": "Two-wheeler-borne suspects, gold chain, near bus stop, evening hours.",
+    "entities": [
+      "veh: KA-05-EF-2091",
+      "phone: withheld",
+      "MO: 2-wheeler snatch",
+      "3 linked FIRs"
+    ],
+    "footerNote": "Matches historical pattern in Sector 6",
+    "category": "property",
+    "status": "open",
+    "linkedCases": [
+      "KA-CR-1098",
+      "KA-CR-1076"
+    ],
+    "sector": "Sector 6",
+    "location": "Hoodi Circle, Whitefield",
+    "latitude": 12.9882,
+    "longitude": 77.6601,
+    "evidence": [
+      {
+        "id": "ev-1",
+        "type": "sketch",
+        "title": "Suspect sketch",
+        "description": "Composite from 2 witnesses",
+        "date": "07 Jul 2026"
+      },
+      {
+        "id": "ev-2",
+        "type": "document",
+        "title": "Complainant statement",
+        "description": "Recorded by SI Manjunath",
+        "date": "07 Jul 2026"
+      }
+    ],
+    "timeline": [
+      {
+        "id": "tl-1",
+        "date": "07 Jul 2026",
+        "time": "18:45",
+        "event": "FIR filed by Lakshmi N.",
+        "officer": "HC Shalini"
+      },
+      {
+        "id": "tl-2",
+        "date": "07 Jul 2026",
+        "time": "19:10",
+        "event": "Case assigned to SI Manjunath",
+        "officer": "Insp. R. Kumaraswamy"
+      },
+      {
+        "id": "tl-3",
+        "date": "08 Jul 2026",
+        "time": "09:30",
+        "event": "Pattern match flagged by system — linked to KA-CR-1098, 1076",
+        "officer": "System"
+      }
+    ]
+  },
+  {
+    "id": "KA-CR-1156",
+    "firNumber": "FIR KA-CR-1156",
+    "title": "Loan app harassment complaint",
+    "priority": "review",
+    "filedDate": "06 Jul 2026",
+    "complainant": "S. Venkatesh",
+    "investigatingOfficer": "SI Deepa R.",
+    "description": "Recurring threats via calls after digital loan default; app unregistered.",
+    "entities": [
+      "acct: HDFC ****3321",
+      "app: \"QuickCash Pro\"",
+      "cyber-physical"
+    ],
+    "footerNote": "Bank trace pending",
+    "category": "cyber",
+    "status": "open",
+    "linkedCases": [],
+    "sector": "Whitefield",
+    "location": "Whitefield Main Road",
+    "latitude": 12.9698,
+    "longitude": 77.7499,
+    "evidence": [
+      {
+        "id": "ev-3",
+        "type": "document",
+        "title": "Victim statement",
+        "description": "Recorded by SI Deepa R.",
+        "date": "06 Jul 2026"
+      },
+      {
+        "id": "ev-4",
+        "type": "screenshot",
+        "title": "App screenshots",
+        "description": "QuickCash Pro — 14 screenshots",
+        "date": "06 Jul 2026"
+      }
+    ],
+    "timeline": [
+      {
+        "id": "tl-4",
+        "date": "06 Jul 2026",
+        "time": "11:00",
+        "event": "FIR filed by S. Venkatesh",
+        "officer": "HC Prakash"
+      },
+      {
+        "id": "tl-5",
+        "date": "06 Jul 2026",
+        "time": "14:30",
+        "event": "Case assigned to SI Deepa R.",
+        "officer": "Insp. R. Kumaraswamy"
+      },
+      {
+        "id": "tl-6",
+        "date": "07 Jul 2026",
+        "time": "10:00",
+        "event": "Bank account trace request submitted to HDFC",
+        "officer": "SI Deepa R."
+      }
+    ]
+  },
+  {
+    "id": "KA-CR-1149",
+    "firNumber": "FIR KA-CR-1149",
+    "title": "Vehicle theft — ITPL parking",
+    "priority": "review",
+    "filedDate": "05 Jul 2026",
+    "complainant": "R. Fernandes",
+    "investigatingOfficer": "HC Prakash",
+    "description": "Motorcycle reported missing from basement parking, no forced entry.",
+    "entities": [
+      "veh: KA-05-AB-4471",
+      "CCTV: 3 cameras",
+      "2 prior complaints"
+    ],
+    "footerNote": "Footage under review",
+    "category": "property",
+    "status": "open",
+    "linkedCases": [],
+    "sector": "ITPL",
+    "location": "ITPL Main Road, Whitefield",
+    "latitude": 12.9785,
+    "longitude": 77.6939,
+    "evidence": [
+      {
+        "id": "ev-5",
+        "type": "cctv",
+        "title": "CCTV Camera 1 — Basement entry",
+        "description": "Recording from 2200–0200 hrs",
+        "date": "05 Jul 2026"
+      },
+      {
+        "id": "ev-6",
+        "type": "cctv",
+        "title": "CCTV Camera 2 — Parking level B2",
+        "description": "Recording from 2200–0200 hrs",
+        "date": "05 Jul 2026"
+      },
+      {
+        "id": "ev-7",
+        "type": "cctv",
+        "title": "CCTV Camera 3 — Exit ramp",
+        "description": "Recording from 2200–0200 hrs",
+        "date": "05 Jul 2026"
+      }
+    ],
+    "timeline": [
+      {
+        "id": "tl-7",
+        "date": "05 Jul 2026",
+        "time": "08:10",
+        "event": "FIR filed by R. Fernandes",
+        "officer": "HC Shalini"
+      },
+      {
+        "id": "tl-8",
+        "date": "05 Jul 2026",
+        "time": "09:45",
+        "event": "CCTV footage requested from ITPL management",
+        "officer": "HC Prakash"
+      },
+      {
+        "id": "tl-9",
+        "date": "06 Jul 2026",
+        "time": "15:00",
+        "event": "Footage received — under review",
+        "officer": "HC Prakash"
+      }
+    ]
+  },
+  {
+    "id": "KA-CR-1138",
+    "firNumber": "FIR KA-CR-1138",
+    "title": "Neighbourhood dispute, assault",
+    "priority": "routine",
+    "filedDate": "03 Jul 2026",
+    "complainant": "G. Ramesh",
+    "investigatingOfficer": "HC Shalini",
+    "description": "Verbal dispute escalated to minor physical altercation between neighbours.",
+    "entities": [
+      "no priors",
+      "witness x2"
+    ],
+    "footerNote": "Statement recording scheduled",
+    "category": "assault",
+    "status": "open",
+    "linkedCases": [],
+    "sector": "Sector 4",
+    "location": "Marathahalli, Whitefield",
+    "latitude": 12.9568,
+    "longitude": 77.7009,
+    "evidence": [
+      {
+        "id": "ev-8",
+        "type": "document",
+        "title": "Initial complaint",
+        "description": "Filed by G. Ramesh",
+        "date": "03 Jul 2026"
+      }
+    ],
+    "timeline": [
+      {
+        "id": "tl-10",
+        "date": "03 Jul 2026",
+        "time": "20:30",
+        "event": "FIR filed by G. Ramesh",
+        "officer": "HC Shalini"
+      },
+      {
+        "id": "tl-11",
+        "date": "04 Jul 2026",
+        "time": "10:00",
+        "event": "Witness statements scheduled",
+        "officer": "HC Shalini"
+      }
+    ]
+  },
+  {
+    "id": "KA-CR-1098",
+    "firNumber": "FIR KA-CR-1098",
+    "title": "Chain snatching — Near Hoodi Lake",
+    "priority": "review",
+    "filedDate": "22 Jun 2026",
+    "complainant": "M. Krishnamurthy",
+    "investigatingOfficer": "SI Manjunath",
+    "description": "Gold chain snatched by two-wheeler borne suspect near Hoodi Lake exit gate.",
+    "entities": [
+      "MO: 2-wheeler snatch",
+      "evening hours"
+    ],
+    "footerNote": "Linked to KA-CR-1142 cluster",
+    "category": "property",
+    "status": "open",
+    "linkedCases": [
+      "KA-CR-1142",
+      "KA-CR-1076"
+    ],
+    "sector": "Sector 6",
+    "location": "Hoodi Lake, Whitefield",
+    "latitude": 12.9901,
+    "longitude": 77.6621,
+    "evidence": [],
+    "timeline": [
+      {
+        "id": "tl-12",
+        "date": "22 Jun 2026",
+        "time": "19:15",
+        "event": "FIR filed",
+        "officer": "HC Prakash"
+      }
+    ]
+  },
+  {
+    "id": "KA-CR-1076",
+    "firNumber": "FIR KA-CR-1076",
+    "title": "Chain snatching — Marathahalli Bridge",
+    "priority": "review",
+    "filedDate": "11 Jun 2026",
+    "complainant": "P. Suresh",
+    "investigatingOfficer": "SI Manjunath",
+    "description": "Two-wheeler snatched gold chain from pedestrian near Marathahalli bridge.",
+    "entities": [
+      "MO: 2-wheeler snatch"
+    ],
+    "footerNote": "Earliest in cluster",
+    "category": "property",
+    "status": "open",
+    "linkedCases": [
+      "KA-CR-1142",
+      "KA-CR-1098"
+    ],
+    "sector": "Sector 5",
+    "location": "Marathahalli Bridge, Whitefield",
+    "latitude": 12.9537,
+    "longitude": 77.7012,
+    "evidence": [],
+    "timeline": [
+      {
+        "id": "tl-13",
+        "date": "11 Jun 2026",
+        "time": "20:00",
+        "event": "FIR filed",
+        "officer": "HC Shalini"
+      }
+    ]
+  }
+]

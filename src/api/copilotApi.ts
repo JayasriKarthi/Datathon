@@ -2,7 +2,7 @@
 import { axiosClient } from './axiosClient';
 import type { ChatMessage } from '../types';
 
-const USE_MOCK = true;
+import { USE_MOCK } from './config';
 
 const MOCK_RESPONSES: Record<string, string> = {
   default:
@@ -46,10 +46,12 @@ export const copilotApi = {
       await new Promise((r) => setTimeout(r, 1000 + Math.random() * 800));
       return generateMockResponse(query);
     }
-    const { data } = await axiosClient.post<{ response: string }>('/copilot/query', {
-      query,
-      history: history.map((m) => ({ role: m.role, content: m.content })),
-    });
+    // The model can take a while on the first call (Lambda cold start + tool use), so allow 30s
+    const { data } = await axiosClient.post<{ response: string; source?: 'bedrock' | 'fallback' }>(
+      '/copilot/query',
+      { query, history: history.map((m) => ({ role: m.role, content: m.content })) },
+      { timeout: 30000 }
+    );
     return data.response;
   },
 };

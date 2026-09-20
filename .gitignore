@@ -40,3 +40,9 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# AWS
+.env
+backend/build/
+backend/.aws-sam/
+backend/.venv/

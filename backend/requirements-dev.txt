@@ -1,0 +1,4 @@
+-r src/requirements.txt
+pytest
+httpx
+moto[dynamodb,s3,cognitoidp]
