@@ -16,6 +16,9 @@ import { AppHeader } from '../../components/layout/AppHeader';
 import { CaseSummaryChart } from '../../components/charts/CaseSummaryChart';
 import { useAuthStore } from '../../store/authStore';
 import { hasPermission } from '../../utils/rbac';
+import { useCaseStore } from '../../store/caseStore';
+import { statsApi } from '../../api/statsApi';
+import { USE_MOCK } from '../../api/config';
 import {
   MOCK_STATS,
   MOCK_COMMISSIONER_STATS,
@@ -301,7 +304,17 @@ export const ControlRoomScreen: React.FC<Props> = ({ navigation }) => {
 
   const isComm = officer?.role === 'commissioner';
   const canGenerateFIR = hasPermission(officer?.role, 'GENERATE_FIR');
-  const statsList = isComm ? MOCK_COMMISSIONER_STATS : MOCK_STATS;
+  // Live counts from the backend (falls back to the mock cards offline or while loading).
+  // Re-fetched whenever the case list changes, e.g. after a new FIR is registered.
+  const caseCount = useCaseStore((s) => s.cases.length);
+  const [liveStats, setLiveStats] = useState<StatCard[] | null>(null);
+  useEffect(() => {
+    if (USE_MOCK) return;
+    let active = true;
+    statsApi.getAll().then((s) => { if (active) setLiveStats(s); }).catch(() => {});
+    return () => { active = false; };
+  }, [caseCount, officer?.badgeNumber]);
+  const statsList = isComm ? MOCK_COMMISSIONER_STATS : (liveStats ?? MOCK_STATS);
 
   // Responsive stat card sizing
   const cardCols = isComm ? (bodyW >= 600 ? 3 : bodyW >= 380 ? 2 : 1) : (bodyW >= 500 ? 2 : 1);

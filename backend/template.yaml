@@ -1,0 +1,168 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: CrimeSphere AI backend - Bharat Builds Tour hackathon (API Gateway + Lambda + DynamoDB + Cognito + S3 + Bedrock)
+
+Parameters:
+  BedrockModelId:
+    Type: String
+    Default: ''
+    Description: >
+      Bedrock model or inference-profile ID enabled in your account (Bedrock console >
+      Model catalog). Leave empty to run the copilot in data-backed fallback mode.
+  BedrockRegion:
+    Type: String
+    Default: us-east-1
+    Description: Region where that Bedrock model is available (can differ from this stack's region).
+  AllowedOrigins:
+    Type: CommaDelimitedList
+    Default: '*'
+    Description: Frontend origin(s) allowed by CORS, e.g. https://main.xxxx.amplifyapp.com. Tighten from '*' before sharing widely.
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Architectures: [x86_64]      # build_lambda.py downloads x86_64 wheels
+    Timeout: 28                  # API Gateway HTTP APIs cut off at 30s
+    MemorySize: 1024
+
+Resources:
+  # ── Auth ────────────────────────────────────────────────────────────────────
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: crimesphere-officers
+      UsernameConfiguration: { CaseSensitive: false }
+      AdminCreateUserConfig: { AllowAdminCreateUserOnly: true }   # no self sign-up: officers are provisioned
+      # Relaxed on purpose: the default policy (8+ chars incl. upper, lower, number AND symbol)
+      # rejects the derived "<pin>@<BADGE>" password. See app/pin.py.
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          RequireUppercase: false
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+      Schema:
+        - { Name: role,  AttributeDataType: String, Mutable: true }
+        - { Name: badge, AttributeDataType: String, Mutable: true }
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientName: crimesphere-app
+      GenerateSecret: false
+      PreventUserExistenceErrors: ENABLED
+      ExplicitAuthFlows: [ALLOW_USER_PASSWORD_AUTH, ALLOW_REFRESH_TOKEN_AUTH]
+
+  # ── Data ────────────────────────────────────────────────────────────────────
+  CasesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: [{ AttributeName: id, AttributeType: S }]
+      KeySchema: [{ AttributeName: id, KeyType: HASH }]
+
+  AlertsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: [{ AttributeName: id, AttributeType: S }]
+      KeySchema: [{ AttributeName: id, KeyType: HASH }]
+
+  OfficersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: [{ AttributeName: badgeNumber, AttributeType: S }]
+      KeySchema: [{ AttributeName: badgeNumber, KeyType: HASH }]
+
+  EvidenceBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods: [GET, POST]      # browser uploads (presigned POST) and downloads
+            AllowedOrigins: !Ref AllowedOrigins
+            AllowedHeaders: ['*']
+            MaxAge: 3000
+
+  # ── API ─────────────────────────────────────────────────────────────────────
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: !Ref AllowedOrigins
+        AllowHeaders: [Authorization, Content-Type]
+        AllowMethods: [GET, POST, PATCH, DELETE, OPTIONS]
+        MaxAge: 600
+      # Cost/abuse guard: the copilot calls a paid model, so cap request rates.
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 40
+        ThrottlingRateLimit: 20
+      Auth:
+        DefaultAuthorizer: OfficerJwt
+        Authorizers:
+          OfficerJwt:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
+              audience: [!Ref UserPoolClient]
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: build/                 # created by build_lambda.py
+      Handler: app.main.handler
+      Environment:
+        Variables:
+          CASES_TABLE: !Ref CasesTable
+          ALERTS_TABLE: !Ref AlertsTable
+          OFFICERS_TABLE: !Ref OfficersTable
+          EVIDENCE_BUCKET: !Ref EvidenceBucket
+          USER_POOL_CLIENT_ID: !Ref UserPoolClient
+          BEDROCK_MODEL_ID: !Ref BedrockModelId
+          BEDROCK_REGION: !Ref BedrockRegion
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref CasesTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref AlertsTable }
+        - DynamoDBReadPolicy: { TableName: !Ref OfficersTable }
+        - S3CrudPolicy: { BucketName: !Ref EvidenceBucket }
+        - Statement:
+            - Effect: Allow
+              Action: [bedrock:InvokeModel, bedrock:InvokeModelWithResponseStream]
+              # Cross-region inference profiles span several model ARNs, so this can't be narrowed
+              # to one resource. Access is still gated by which models you enable in Bedrock.
+              Resource: '*'
+      Events:
+        Login:                        # public: this is how a token is obtained
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /api/v1/auth/login, Method: POST, Auth: { Authorizer: NONE } }
+        Health:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /api/v1/health, Method: GET, Auth: { Authorizer: NONE } }
+        Preflight:                    # CORS preflight (OPTIONS) carries no token, so it must skip the authorizer
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: '/api/v1/{proxy+}', Method: OPTIONS, Auth: { Authorizer: NONE } }
+        Everything:                   # all other routes require a valid Cognito token
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: '/api/v1/{proxy+}', Method: ANY }
+
+Outputs:
+  ApiUrl:
+    Description: Use as EXPO_PUBLIC_API_URL in the frontend
+    Value: !Sub https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/api/v1
+  UserPoolId: { Value: !Ref UserPool }
+  UserPoolClientId: { Value: !Ref UserPoolClient }
+  CasesTable: { Value: !Ref CasesTable }
+  AlertsTable: { Value: !Ref AlertsTable }
+  OfficersTable: { Value: !Ref OfficersTable }
+  EvidenceBucket: { Value: !Ref EvidenceBucket }

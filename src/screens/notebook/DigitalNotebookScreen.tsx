@@ -11,6 +11,9 @@ import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/colors';
 import { FontFamily, FontSize } from '../../constants/typography';
 import { MOCK_CASES } from '../../constants/mockData';
+import { copilotApi } from '../../api/copilotApi';
+import { apiErrorMessage } from '../../api/errors';
+import type { ChatMessage } from '../../types';
 import { Mission, NotebookTask } from '../../components/notebook/NotebookComponents';
 
 type Nav = DrawerNavigationProp<DrawerParamList, 'DutyNotebook'>;
@@ -47,6 +50,8 @@ const TOP_ROW_H = 220;
 const AICopilotPopup: React.FC<{ visible: boolean; onClose: () => void }> = ({ visible, onClose }) => {
   const [chatInput, setChatInput] = useState('');
   const [msgs, setMsgs] = useState(AI_INSIGHTS);
+  const [history, setHistory] = useState<ChatMessage[]>([]);
+  const [thinking, setThinking] = useState(false);
   const slideAnim = useRef(new Animated.Value(420)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef<ScrollView>(null);
@@ -56,11 +61,25 @@ const AICopilotPopup: React.FC<{ visible: boolean; onClose: () => void }> = ({ v
       Animated.timing(opacityAnim, { toValue: visible ? 1 : 0,   duration: 220,            useNativeDriver: false }),
     ]).start();
   }, [visible]);
-  const sendAI = () => {
-    if (!chatInput.trim()) return;
-    setMsgs(m => [...m, 'Query: "' + chatInput + '" - Correlation index updated.']);
+  const sendAI = async () => {
+    const q = chatInput.trim();
+    if (!q || thinking) return;
     setChatInput('');
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+    setThinking(true);
+    const stamp = () => ({ time: new Date().toLocaleTimeString(), timestamp: new Date().toISOString() });
+    const userMsg: ChatMessage = { id: `u-${Date.now()}`, role: 'user', content: q, ...stamp() };
+    try {
+      // Backend: Strands agent on Amazon Bedrock, reading real cases/alerts from DynamoDB
+      const reply = await copilotApi.sendMessage(q, history);
+      const aiMsg: ChatMessage = { id: `a-${Date.now()}`, role: 'copilot', content: reply, ...stamp() };
+      setHistory(h => [...h, userMsg, aiMsg]);
+      setMsgs(m => [...m, `Q: ${q}\n\n${reply}`]);
+    } catch (e) {
+      setMsgs(m => [...m, `Q: ${q}\n\n${apiErrorMessage(e, 'The copilot is unavailable right now.')}`]);
+    } finally {
+      setThinking(false);
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+    }
   };
   if (!visible) return null;
   return (
@@ -76,7 +95,7 @@ const AICopilotPopup: React.FC<{ visible: boolean; onClose: () => void }> = ({ v
           </View>
           <TouchableOpacity style={aiSt.closeBtn} onPress={onClose}><Text style={aiSt.closeBtnText}>x</Text></TouchableOpacity>
         </View>
-        <View style={aiSt.statusBar}><View style={aiSt.statusDot} /><Text style={aiSt.statusText}>Active - {msgs.length} correlations</Text></View>
+        <View style={aiSt.statusBar}><View style={aiSt.statusDot} /><Text style={aiSt.statusText}>{thinking ? 'Analysing case data…' : `Active - ${msgs.length} correlations`}</Text></View>
         <ScrollView ref={scrollRef} style={aiSt.scroll} contentContainerStyle={{ paddingBottom: 8 }} showsVerticalScrollIndicator={false}>
           {msgs.map((msg, i) => (
             <View key={i} style={aiSt.bubble}><Text style={aiSt.bubbleLabel}>AI Analysis</Text><Text style={aiSt.bubbleText}>{msg}</Text></View>

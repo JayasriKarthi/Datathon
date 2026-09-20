@@ -2,6 +2,11 @@
 import { create } from 'zustand';
 import type { Officer, Role } from '../types';
 import { MOCK_ROLE_ACCOUNTS, MOCK_OFFICER } from '../constants/mockData';
+import { authApi } from '../api/authApi';
+import { USE_MOCK } from '../api/config';
+import { session } from '../api/session';
+import { apiErrorMessage } from '../api/errors';
+import { useCaseStore } from './caseStore';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -22,6 +27,20 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (badgeNumber: string, pin: string, selectedRole?: Role) => {
     set({ isLoading: true, error: null });
+
+    if (!USE_MOCK) {
+      // Real login: Cognito via the backend. The server decides the role, not the UI.
+      try {
+        const res = await authApi.login(badgeNumber.trim(), pin.trim());
+        session.setToken(res.token);
+        set({ isAuthenticated: true, officer: res.officer, isLoading: false });
+        void useCaseStore.getState().fetchCases();
+      } catch (e) {
+        set({ error: apiErrorMessage(e, 'Invalid badge number or PIN. Please try again.'), isLoading: false });
+      }
+      return;
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     const cleanBadge = badgeNumber.trim().toUpperCase();
@@ -58,9 +77,13 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
+    session.setToken(null);
+    useCaseStore.getState().reset();
     set({ isAuthenticated: false, officer: null, error: null });
   },
 
   clearError: () => set({ error: null }),
 }));
 
+// An expired/invalid token (HTTP 401) signs the officer out
+session.setUnauthorizedHandler(() => useAuthStore.getState().logout());

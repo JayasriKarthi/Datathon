@@ -3,7 +3,7 @@ import { axiosClient } from './axiosClient';
 import type { Alert } from '../types';
 import { MOCK_ALERTS } from '../constants/mockData';
 
-const USE_MOCK = true;
+import { USE_MOCK } from './config';
 
 export const alertsApi = {
   getAll: async (): Promise<Alert[]> => {

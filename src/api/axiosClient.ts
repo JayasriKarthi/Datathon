@@ -1,13 +1,12 @@
 // CrimeSphere AI — Axios Client
-// Configured for FastAPI backend integration
+// Talks to the AWS backend (API Gateway + Lambda). See backend/README.md.
 
 import axios from 'axios';
-
-// Replace with your FastAPI server URL
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
+import { API_URL } from './config';
+import { session } from './session';
 
 export const axiosClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -15,23 +14,24 @@ export const axiosClient = axios.create({
   },
 });
 
-// Request interceptor — attach auth token
+// Request interceptor — attach the Cognito ID token
 axiosClient.interceptors.request.use(
   (config) => {
-    // TODO: Pull token from secure storage
-    // const token = await SecureStore.getItemAsync('auth_token');
-    // if (token) config.headers.Authorization = `Bearer ${token}`;
+    const token = session.getToken();
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response interceptor — handle 401
+// Response interceptor — an expired/invalid token signs the officer out.
+// (Only when we actually had a token, so a wrong PIN at login isn't treated as a session expiry.)
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // TODO: Trigger logout / token refresh
+    if (error.response?.status === 401 && session.getToken()) {
+      session.setToken(null);
+      session.handleUnauthorized();
     }
     return Promise.reject(error);
   }
